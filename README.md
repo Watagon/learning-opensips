@@ -29,6 +29,8 @@ root: ~/
 windows:
   - opensips:
     - sudo /usr/sbin/opensips -F
+  - opensips-cli:
+    - opensips-cli
   - sngrep2:
     - sudo sngrep2 -d any
   - tests:
