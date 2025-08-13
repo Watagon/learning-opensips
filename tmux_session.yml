@@ -1,0 +1,11 @@
+name: learning-opensips
+root: ~/
+
+windows:
+  - opensips:
+    - sudo /usr/sbin/opensips -F
+  - sngrep2:
+    - sudo sngrep2 -d any
+  - tests:
+    - cd ~/src/git/learning-opensips/tests
+
