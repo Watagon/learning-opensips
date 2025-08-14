@@ -7,6 +7,9 @@ windows:
     - ./opensips_loop.sh
   - opensips-cli:
     - opensips-cli
+  - mariadb:
+    - sudo /etc/init.d/mariadb restart
+    - mysql -u root -pbrastel
   - sngrep2:
     - sudo sngrep2 -d any
   - tests:

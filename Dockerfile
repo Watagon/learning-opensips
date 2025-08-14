@@ -82,6 +82,18 @@ RUN echo "wireshark-common wireshark-common/install-setuid boolean true" | debco
 RUN apt-get -y update 
 RUN apt install -y tshark
 
+RUN <<EOF
+set -o errexit
+set -o nounset
+set -o pipefail
+
+apt install -y mariadb-server
+
+/etc/init.d/mariadb start
+
+mysql -e "use mysql; ALTER USER 'root'@'localhost' IDENTIFIED VIA mysql_native_password USING PASSWORD('brastel')"
+EOF
+
 USER $user_name
 
 RUN echo "set-option -g default-shell /bin/bash" >> ~/.tmux.conf
