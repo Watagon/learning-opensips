@@ -12,7 +12,7 @@ Here we have a Dockerfile that permits to build a docker image with opensips, no
 ```
 This will take several minutes to complete. Be patient as we will build opensips from source.
 
-After it completes, we will have opensips 3.6.0 installed with almost all modules except for these ones that require extra libs or are failing to compile:
+After it completes, we will have Debian 11 with opensips 3.6.0 installed with almost all modules except for these ones that require extra libs, require special building procedure, requires special hardware or are failing to compile:
 
 - db_oracle 
 - osp
@@ -21,7 +21,6 @@ After it completes, we will have opensips 3.6.0 installed with almost all module
 - cachedb_dynamodb
 - sngtc
 - aaa_radius
-- aaa_diameter
 - event_sqs
 - http2d
 - launch_darkly
@@ -41,20 +40,28 @@ Once you are inside the container, you can start a tmux session for work by doin
 This will create the tmux session specified in tmux_session.yml:
 ```
 name: learning-opensips
-root: ~/
+root: ~/src/git/learning-opensips
 
 windows:
   - opensips:
-    - sudo /usr/sbin/opensips -F
+    - sudo /etc/init.d/mariadb restart
+    - sudo cp -f etc/opensips/opensips.cfg /usr/local/etc/opensips/
+    - ./opensips_loop.sh
   - opensips-cli:
+    - sleep 5
     - opensips-cli
+  - mariadb:
+    - sleep 5
+    - mysql -u root -pbrastel opensips
   - sngrep2:
     - sudo sngrep2 -d any
   - tests:
     - cd ~/src/git/learning-opensips/tests
 ```
 
-The 'opensips' window will have opensips running and outputting logs (this is not a CLI).
+The 'opensips' window will have opensips running and outputting logs.
+
+The 'opensips-cli' window runs the tool that permits to talk to opensips and send commands to it.
 
 Obs: sngrep2 is a fork of [sngrep](https://github.com/irontec/sngrep) with support for RFC2833 DTMF and MRCP support.
 
@@ -89,3 +96,6 @@ node register.js
 This will just make a REGISTER request to opensips and expect for a reply.
 
 Then it will un-REGISTER (Expires: 0) and expects the reply for it.
+
+Switch to the 'sngrep2' window to inspect the SIP messages exchanged by the test script and opensips.
+

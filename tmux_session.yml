@@ -1,17 +1,17 @@
 name: learning-opensips
-root: ~/
+root: ~/src/git/learning-opensips
 
 windows:
   - opensips:
     - sudo /etc/init.d/mariadb restart
-    - cd ~/src/git/learning-opensips
     - sudo cp -f etc/opensips/opensips.cfg /usr/local/etc/opensips/
     - ./opensips_loop.sh
   - opensips-cli:
+    - sleep 5
     - opensips-cli
   - mariadb:
-    - sleep 2
-    - mysql -u root -pbrastel
+    - sleep 5
+    - mysql -u root -pbrastel opensips
   - sngrep2:
     - sudo sngrep2 -d any
   - tests:

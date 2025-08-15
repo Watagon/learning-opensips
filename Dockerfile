@@ -97,7 +97,10 @@ apt-get update && apt-get install -y \
   perl perl-base perl-modules libperl-dev libnet-ldap-perl libipc-shareable-perl \
   libmicrohttpd-dev \
   liblua5.1-0-dev \
-  libosp-dev
+  libosp-dev \
+  libfreediameter-dev \
+  libfdcore6 \
+  libfdproto6
 
 mkdir -p /usr/local/src/git
 cd /usr/local/src/git
@@ -106,7 +109,7 @@ cd opensips
 
 git checkout 3.6.0
 
-export exclude_modules="db_oracle osp cachedb_cassandra cachedb_couchbase cachedb_dynamodb sngtc aaa_radius aaa_diameter event_sqs http2d launch_darkly rtp.io tls_wolfssl"
+export exclude_modules="db_oracle osp cachedb_cassandra cachedb_couchbase cachedb_dynamodb sngtc aaa_radius event_sqs http2d launch_darkly rtp.io tls_wolfssl"
 
 make prefix=/usr/local all
 make prefix=/usr/local install
