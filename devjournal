@@ -1,0 +1,18 @@
+------------------------------------
+2025/08/15 takeshi:
+
+List of opensips modules that will be excluded of build:
+
+- db_oracle (need to install lib)
+- osp (libosp-dev was installed but we got 'osp/osp.h: No such file or directory')
+- cachedb_cassandra (need to install lib)
+- cachedb_couchbase (need to install lib)
+- cachedb_dynamodb (need to install lib)
+- sngtc (need to install lib)
+- aaa_radius (code fails to compile)
+- aaa_diameter (libfreediameter-dev could not installed with apt)
+- event_sqs (need to install aws lib)
+- http2d (need several libs)
+- launch_darkly (???)
+- rtp.io (alpha, needs librtpproxy)
+- tls_wolfssl (could not be compiled. Issue with autogen)

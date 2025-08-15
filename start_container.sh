@@ -18,7 +18,7 @@ fi
 docker run \
   --rm \
   -it \
-  --net=none \
+  --net=host \
   -v /etc/localtime:/etc/localtime:ro \
   -v `pwd`/..:/home/$git_user_name/src/git \
   -v `pwd`/etc/opensips:/etc/opensips \

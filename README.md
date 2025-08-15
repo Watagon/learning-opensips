@@ -10,6 +10,23 @@ Here we have a Dockerfile that permits to build a docker image with opensips, no
 ```
 ./build_image.sh
 ```
+This will take several minutes to complete. Be patient as we will build opensips from source.
+
+After it completes, we will have opensips 3.6.0 installed with almost all modules except for these ones that require extra libs or are failing to compile:
+
+- db_oracle 
+- osp
+- cachedb_cassandra
+- cachedb_couchbase
+- cachedb_dynamodb
+- sngtc
+- aaa_radius
+- aaa_diameter
+- event_sqs
+- http2d
+- launch_darkly
+- rtp.io
+- tls_wolfssl
 
 ## Starting the container:
 ```

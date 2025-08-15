@@ -3,12 +3,6 @@ FROM debian:bullseye
 # Set Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive
 
-ARG OPENSIPS_VERSION=3.4
-ARG OPENSIPS_VERSION_MINOR
-ARG OPENSIPS_VERSION_REVISION=1
-ARG OPENSIPS_BUILD=releases
-ARG OPENSIPS_COMPONENT
-
 ARG user_name
 ARG git_user_name
 ARG git_user_email
@@ -19,39 +13,13 @@ ARG USER_GID=$USER_UID
 SHELL ["/bin/bash", "--login", "-c"]
 
 #install basic components
-RUN apt-get -y update -qq && apt-get -y install gnupg2 ca-certificates build-essential sudo tmuxinator vim curl net-tools tree
+RUN apt-get -y update -qq && apt-get -y install gnupg2 ca-certificates bison flex build-essential sudo tmuxinator vim curl net-tools tree
 
 # install sip-lab deps
 RUN apt-get -y install build-essential automake autoconf libtool libspeex-dev libopus-dev libsdl2-dev libavdevice-dev libswscale-dev libv4l-dev libopencore-amrnb-dev libopencore-amrwb-dev libvo-amrwbenc-dev libvo-amrwbenc-dev libboost-dev libtiff-dev libpcap-dev libssl-dev uuid-dev flite-dev cmake git wget 
 
 # install sngrep deps
 RUN apt-get -y install libpcap-dev libncurses5 libssl-dev libncursesw5-dev libpcre2-dev libz-dev
-
-#add keyserver, repository
-RUN apt-key adv --fetch-keys https://apt.opensips.org/pubkey.gpg
-RUN echo "deb https://apt.opensips.org bullseye \
-		$(test -z "${OPENSIPS_COMPONENT}" && \
-				echo ${OPENSIPS_VERSION}-${OPENSIPS_BUILD} || \
-				echo ${OPENSIPS_COMPONENT})" >/etc/apt/sources.list.d/opensips.list
-
-RUN apt-get -y update -qq && \
-    apt-get -y install \
-        opensips${OPENSIPS_VERSION_MINOR:+=$OPENSIPS_VERSION.$OPENSIPS_VERSION_MINOR-$OPENSIPS_VERSION_REVISION}
-
-ARG OPENSIPS_CLI=false
-RUN if [ ${OPENSIPS_CLI} = true ]; then \
-    echo "deb https://apt.opensips.org bullseye cli-nightly" >/etc/apt/sources.list.d/opensips-cli.list \
-    && apt-get -y update -qq && apt-get -y install opensips-cli \
-    ;fi
-
-ARG OPENSIPS_EXTRA_MODULES
-RUN if [ -n "${OPENSIPS_EXTRA_MODULES}" ]; then \
-    apt-get -y install ${OPENSIPS_EXTRA_MODULES} \
-    ;fi
-
-RUN rm -rf /var/lib/apt/lists/*
-RUN sed -i "s/stderror_enabled=no/stderror_enabled=yes/g" /etc/opensips/opensips.cfg && \
-    sed -i "s/syslog_enabled=yes/syslog_enabled=no/g" /etc/opensips/opensips.cfg
 
 RUN <<EOF
 set -o errexit
@@ -71,6 +39,80 @@ ln -s `pwd`/src/sngrep /usr/local/bin/sngrep2
 
 EOF
 
+# install mariadb
+RUN <<EOF
+set -o errexit
+set -o nounset
+set -o pipefail
+
+apt install -y mariadb-server
+
+/etc/init.d/mariadb start
+
+mysql -e "use mysql; ALTER USER 'root'@'localhost' IDENTIFIED VIA mysql_native_password USING PASSWORD('brastel')"
+EOF
+
+# build and install opensips
+RUN <<EOF
+set -o nounset 
+set -o errexit
+set -o pipefail
+
+apt install -y lua5.1 expect libmariadb-dev-compat libxml2-dev libcurl4-openssl-dev libsqlite3-dev libmnl-dev libjson-c-dev libsnmp-dev
+
+apt-get update && apt-get install -y \
+  build-essential \
+  bison \
+  flex \
+  cmake \
+  git \
+  libmnl-dev \
+  libxml2-dev \
+  libcurl4-openssl-dev \
+  libpq-dev \
+  unixodbc-dev \
+  libdb-dev \
+  libsqlite3-dev \
+  libfreeradius-dev \
+  libjwt-dev \
+  libmaxminddb-dev \
+  libldap2-dev \
+  libjson-c-dev \
+  libmemcached-dev \
+  libhiredis-dev \
+  libconfuse-dev \
+  librabbitmq-dev \
+  libssl-dev \
+  liblua5.3-dev \
+  libxmlrpc-core-c3-dev \
+  libsctp-dev \
+  libjansson-dev \
+  librdkafka-dev \
+  libgtp-dev \
+  libwolfssl-dev \
+  libpython3-dev \
+  libmongoc-dev \
+  libsnmp-dev \
+  python-dev \
+  perl perl-base perl-modules libperl-dev libnet-ldap-perl libipc-shareable-perl \
+  libmicrohttpd-dev \
+  liblua5.1-0-dev \
+  libosp-dev
+
+mkdir -p /usr/local/src/git
+cd /usr/local/src/git
+git clone https://github.com/OpenSIPS/opensips opensips
+cd opensips
+
+git checkout 3.6.0
+
+export exclude_modules="db_oracle osp cachedb_cassandra cachedb_couchbase cachedb_dynamodb sngtc aaa_radius aaa_diameter event_sqs http2d launch_darkly rtp.io tls_wolfssl"
+
+make prefix=/usr/local all
+make prefix=/usr/local install
+
+EOF
+
 # Create the user
 RUN groupadd --gid $USER_GID $user_name \
     && useradd --uid $USER_UID --gid $USER_GID -m $user_name
@@ -82,16 +124,52 @@ RUN echo "wireshark-common wireshark-common/install-setuid boolean true" | debco
 RUN apt-get -y update 
 RUN apt install -y tshark
 
+# Installing opensips-cli
 RUN <<EOF
+set -o nounset 
 set -o errexit
-set -o nounset
 set -o pipefail
 
-apt install -y mariadb-server
+apt -y install python3 python3-pip python3-dev gcc default-libmysqlclient-dev \
+                 python3-mysqldb python3-sqlalchemy python3-sqlalchemy-utils \
+                 python3-openssl
 
-/etc/init.d/mariadb start
+pip3 install mysqlclient
+pip3 install SQLAlchemy==1.4.47
 
-mysql -e "use mysql; ALTER USER 'root'@'localhost' IDENTIFIED VIA mysql_native_password USING PASSWORD('brastel')"
+curl https://apt.opensips.org/opensips-org.gpg -o /usr/share/keyrings/opensips-org.gpg
+echo "deb [signed-by=/usr/share/keyrings/opensips-org.gpg] https://apt.opensips.org bullseye cli-nightly" >/etc/apt/sources.list.d/opensips-cli.list
+
+apt -y update
+apt -y install opensips-cli
+
+EOF
+
+# Creating database opensips"
+RUN <<EOF
+set -o nounset 
+set -o errexit
+set -o pipefail
+
+echo "Creating database"
+
+/etc/init.d/mariadb restart
+
+(cat | expect -) <<'END'
+exp_internal 1
+set timeout 10
+spawn opensips-cli -d -x database create
+expect {
+        timeout {exit 1}
+	"Password for admin MySQL user (root): "
+}
+send "brastel\n"
+expect eof
+END
+
+echo "Creating user opensips"
+useradd -M opensips
+
 EOF
 
 USER $user_name
@@ -151,3 +229,4 @@ export TERM=xterm-256color
 . ~/.nvm/nvm.sh
 EOF
 
+RUN sudo mkdir -p /run/opensips
