@@ -6,6 +6,10 @@ This repo provides tools to quickly get up to speed working with opensips using 
 
 Here we have a Dockerfile that permits to build a docker image with opensips, node.js (used to run functional tests) and sngrep2 (used to follow SIP message flows)
 
+## Pre-requisites
+
+Please follow [learning-freeswitch](https://github.com/MayamaTakeshi/learning-freeswitch) first as it will give you a solid understanding of how to write functional tests.
+
 ## Building the image:
 ```
 ./build_image.sh
