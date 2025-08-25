@@ -24,7 +24,8 @@ do
     fi
 done
 
-echo "Success. All tests passed"
+echo
+echo "Success. All tests passed:"
 echo
 
 for item in "${tests[@]}"

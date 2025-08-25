@@ -14,6 +14,7 @@ windows:
     - mysql -u root -pbrastel opensips
   - sngrep2:
     - sudo sngrep2 -d any
-  - tests:
-    - cd ~/src/git/learning-opensips/tests
+  - exercices:
+    - npm i
+    - cd ~/src/git/learning-opensips/exercises
 

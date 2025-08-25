@@ -21,7 +21,7 @@ test_folder=$1
 
 sudo cp -f $test_folder/opensips.cfg /usr/local/etc/opensips/
 
-# restart opensips with new opensips.cfg
+# kill opensips (it will restart using the new opensips.cfg)
 opensips-cli -x mi kill
 
 # execute the test
