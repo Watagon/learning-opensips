@@ -74,11 +74,13 @@ Obs: sngrep2 is a fork of [sngrep](https://github.com/irontec/sngrep) with suppo
 
 ## Opensips SIP registrar/proxy server
 
-Opensips is a SIP registrar and proxy server. A SIP registrar is an entity that maintains records of locations where SIP entities like SIP terminal/softphones can be found.
+Opensips is a SIP registrar and proxy server.
 
-This is necessary for SIP terminals/softphones because their IP:Port can change due the change of network/roaming etc.
+A SIP registrar is an entity that maintains records of locations where SIP entities like SIP terminal/softphones can be found.
 
-So they don't have a fixed IP:Port and this information must be informed to a central location (the SIP registrar) and kept updated periodically.
+This is necessary for SIP terminals/softphones because their IP:Port can change due the changes in network, roaming etc.
+
+So they don't have a fixed IP:Port and this information must be informed to a central/known location (the SIP registrar) and kept updated periodically.
 
 Then Opensips is also a proxy as it accepts SIP requests, resolves the destination SIP entity and proxies the request to it.
 
@@ -94,7 +96,7 @@ This is done by routes, so you can start by reading about them here: https://www
 
 The configuration of opensips is done by a single file at /usr/local/etc/opensips/opensips.cfg
 
-You can load modules to handle different needs like database backend and http requests to resolve how to handle incoming calls.
+You can load modules to handle different needs like use of database backend, http requests and programming languages like perl, python and lua to resolve how to handle incoming calls. Documentation: https://www.opensips.org/Documentation/Modules-3-6
 
 For our training purposes, we will have exercises to be completed and each exercise will have its own subfolder like this:
 ```
