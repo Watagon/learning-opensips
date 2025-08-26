@@ -156,7 +156,23 @@ You can also switch to the 'opensips' window to check its logs. This will not ma
 
 ## Exercises
 
+For each exercise, create a new subfolder inside folder exercises and copy register/opensips.cfg and register/test.js to the new subfolder.
 
+Then adjust the new files to make then work as expected by the exercise (you can use AI to help you).
+
+Obs: the register/opensips.cfg listen to port 5060 (public, used for SIP terminals) and port 5080 (private, used by SIP gateways).
+
+  1. register: just register and unregister (already done)
+
+  2. user2user: register sip terminals (users) and make a call from one user to another. In the INVITE from the user1, include a header 'X-Test: ABC' and make opensips suppress this header when relaying this INVITE to user2. Answer the call at user2 and end the call from any of the sides.
+
+  3. register_with_auth: the base opensips.cfg accepts REGISTER requests from any SIP entity. Add support for authentication for requests arriving at port 5060 (need to add a record into table subscriber with authentication details). After registration success, do the unregistration.
+
+  4. gw2user: register the user (via port 5060) and make a call to 05011112222 via port 5080 to simulate a gateway calling that user. In the INVITE to the user, make opensips to add a header 'X-Test: DEF' to the original INVITE. Answer the call, terminate it and unregister.
+
+  5. rest_user_resolution: add this module to opensips.cfg: https://opensips.org/docs/modules/3.6.x/rest_client.html and change the code to handle INVITE and make a POST request to resolve the user to be called. In test.js, start an http server to handle requests, register a user and then make a call via 5080 to some address like 05011112222, When the POST request arrives, reply saying the user should be the destination of the INVITE.
+
+Obs: there is no need to send/receive DTMF as opensips is a SIP only server and doesn't handle media/RTP.
 
 Once all exercises are complete you can run all of them by doing:
 ```
