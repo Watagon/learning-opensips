@@ -8,7 +8,7 @@ Here we have a Dockerfile that permits to build a docker image with opensips, no
 
 ## Pre-requisites
 
-Please follow [learning-freeswitch](https://github.com/MayamaTakeshi/learning-freeswitch) first as it will give you a solid understanding of how to write functional tests.
+Please, follow [learning-freeswitch](https://github.com/MayamaTakeshi/learning-freeswitch) first as it will give you a solid understanding of how to write functional tests.
 
 ## Building the image:
 ```
@@ -72,20 +72,6 @@ The 'mariadb' window has mysql client connected to mariadb server (database open
 
 Obs: sngrep2 is a fork of [sngrep](https://github.com/irontec/sngrep) with support for RFC2833 DTMF and MRCP support.
 
-## Test-driven development
-
-When developing solutions, we need to provide test scripts confirming their proper behavior.
-
-So we use node.js [zeq](https://github.com/MayamaTakeshi/zeq) module that permits to write functional tests.
-
-This is a simple library that permits to sequence execution of commands and wait for events triggered by the commands.
-
-Then [sip-lab](https://github.com/MayamaTakeshi/sip-lab) is used to make/receive SIP calls and perform media operations (play/record audio files, detect digits, send receive fax, etc).
-
-So we combine these two libraries to write functional SIP tests.
-
-You can see a generic sample (not involving freeswitch) here: https://github.com/MayamaTakeshi/sip-lab/blob/master/samples/simple.js
-
 ## Opensips SIP registrar/proxy server
 
 Opensips is a SIP registrar and proxy server. A SIP registrar is an entity that maintains records of locations where SIP entities like SIP terminal/softphones can be found.
@@ -108,7 +94,9 @@ This is done by routes, so you can start by reading about them here: https://www
 
 The configuration of opensips is done by a single file at /usr/local/etc/opensips/opensips.cfg
 
-For our training purposes, we will have exercises to be completed and each exercise will be in a folder like this:
+You can load modules to handle different needs like database backend and http requests to resolve how to handle incoming calls.
+
+For our training purposes, we will have exercises to be completed and each exercise will have its own subfolder like this:
 ```
   - exercises
     - exercise1
@@ -134,7 +122,7 @@ To run an exercise we will do:
 
 The script run_test.sh will copy the exercise opensips.cfg to /usr/local/etc/opensips/opensips.cfg and will force opensips to restart to get the new configuration.
 
-Then run_test.sh will run 'node test.js'
+Then run_test.sh will execute test.js.
 
 ## Running a sample test script
 
@@ -144,12 +132,12 @@ Inside the container, in the tmux session, switch to the 'exercises' window and 
 ./run_test.sh register
 ```
 
-This test will make a REGISTER request to opensips and expect for a reply.
+This test will make a REGISTER request to opensips and wait for a reply.
 
-For this, the test send the request with header 'Expires: 60' which means we want the registrar server (opensips) to keep the registration valid for 60 seconds. So if we don't re-register again after 60 seconds, the registration
-can should be discarded (to avoid stale registrations, we must keep re-registering periodically).
+For this, the test sends the request with header 'Expires: 60' which means we want the registrar server (opensips) to keep the registration valid for 60 seconds. So if we don't re-register again after 60 seconds, the registration
+should be discarded (to avoid stale registrations. So we must keep re-registering periodically).
 
-After the above is successful, the test will un-REGISTER (header 'Expires: 0', meaning the registrar server should delete the registration) and expects the reply for it.
+After the above is successful, the test will un-REGISTER (header 'Expires: 0', meaning the registrar server should delete the registration) and expect the reply for it.
 
 Switch to the 'sngrep2' window to inspect the SIP messages exchanged by the test script and opensips.
 
@@ -169,9 +157,9 @@ To test the exercise do:
 
 Obs: the register/opensips.cfg listen to port 5060 (public, used for SIP terminals) and port 5080 (private, used by SIP gateways).
 
-  1. register: just register and unregister (already done)
+  1. register: just register and unregister procedure (sample)
 
-  2. user2user: register sip terminals (users) and make a call from one user to another. In the INVITE from the user1, include a header 'X-Test: ABC' and make opensips suppress this header when relaying this INVITE to user2. Answer the call at user2 and end the call from any of the sides. To finish the test, unregister the terminals.
+  2. user2user: register sip terminals (users) and make a call from one user to another (via port 5060). In the INVITE from the user1, include a header 'X-Test: ABC' and make opensips suppress this header when relaying this INVITE to user2. Answer the call at user2 (confirm the ehader 'X-Test' is absent) and end the call from any of the sides. To finish the test, unregister the terminals.
 
   3. register_with_auth: the base opensips.cfg accepts REGISTER requests from any SIP entity. Add support for authentication for requests arriving at port 5060 (need to add a record into table subscriber with authentication details). After registration success, do the unregistration.
 
@@ -179,7 +167,7 @@ Obs: the register/opensips.cfg listen to port 5060 (public, used for SIP termina
 
   5. aliasdb_user_resolution: add this module to opensips.cfg: https://opensips.org/docs/modules/3.6.x/alias_db.html. The test should be the same as gw2user but instead of resolving 05011112222 by a condition in opensips.cfg, adjust opensips.cfg to resolve the 05011112222 by a record in table dbaliases (an 'alias' is an extra name a user can be identified by. So we say, '05011112222' is an alias for 'user1' for example. This is how a number dialed at the PSTN is resolved to a subscriber in the SIP system).
 
-  6. rest_client_user_resolution: add this module to opensips.cfg: https://opensips.org/docs/modules/3.6.x/rest_client.html and change the code to handle INVITE and make a POST request sending the R-URI username, to resolve the user to be called. In test.js, start an http server to handle requests, register a user and then make a call via 5080 to 05011112222, When the POST request arrives, reply saying the user should be the destination of the INVITE.
+  6. rest_client_user_resolution: add this module to opensips.cfg: https://opensips.org/docs/modules/3.6.x/rest_client.html and change the code to handle INVITE and make a POST request sending the R-URI username (R-URI is the username in the URI in the first line of the SIP request), to resolve the user to be called. In test.js, start an http server to handle requests, register a user and then make a call via 5080 to 05011112222, When the POST request arrives, reply saying the user should be the destination of the INVITE.
 
 Obs: 
   - there is no need to send/receive DTMF as opensips is a SIP only server and doesn't handle media/RTP.
