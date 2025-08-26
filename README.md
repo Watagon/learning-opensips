@@ -68,6 +68,8 @@ The 'opensips' window will have opensips running and outputting logs.
 
 The 'opensips-cli' window runs the tool that permits to talk to opensips and send commands to it.
 
+The 'mariadb' window has mysql client connected to mariadb server (database opensips).
+
 Obs: sngrep2 is a fork of [sngrep](https://github.com/irontec/sngrep) with support for RFC2833 DTMF and MRCP support.
 
 ## Test-driven development
@@ -160,19 +162,28 @@ For each exercise, create a new subfolder inside folder exercises and copy regis
 
 Then adjust the new files to make then work as expected by the exercise (you can use AI to help you).
 
+To test the exercise do:
+```
+./run_test.sh EXERCISE_NAME
+```
+
 Obs: the register/opensips.cfg listen to port 5060 (public, used for SIP terminals) and port 5080 (private, used by SIP gateways).
 
   1. register: just register and unregister (already done)
 
-  2. user2user: register sip terminals (users) and make a call from one user to another. In the INVITE from the user1, include a header 'X-Test: ABC' and make opensips suppress this header when relaying this INVITE to user2. Answer the call at user2 and end the call from any of the sides.
+  2. user2user: register sip terminals (users) and make a call from one user to another. In the INVITE from the user1, include a header 'X-Test: ABC' and make opensips suppress this header when relaying this INVITE to user2. Answer the call at user2 and end the call from any of the sides. To finish the test, unregister the terminals.
 
   3. register_with_auth: the base opensips.cfg accepts REGISTER requests from any SIP entity. Add support for authentication for requests arriving at port 5060 (need to add a record into table subscriber with authentication details). After registration success, do the unregistration.
 
-  4. gw2user: register the user (via port 5060) and make a call to 05011112222 via port 5080 to simulate a gateway calling that user. In the INVITE to the user, make opensips to add a header 'X-Test: DEF' to the original INVITE. Answer the call, terminate it and unregister.
+  4. gw2user: register the user (via port 5060) and make a call to 05011112222 via port 5080 to simulate a gateway calling that user. In opensis.cfg route, there should be a condition checking if the RURI username is '0501111222'. If yes, then relay the INVITE to the user. Make opensips to add a header 'X-Test: DEF' to the original INVITE. Answer the call, terminate it and unregister.
 
-  5. rest_user_resolution: add this module to opensips.cfg: https://opensips.org/docs/modules/3.6.x/rest_client.html and change the code to handle INVITE and make a POST request to resolve the user to be called. In test.js, start an http server to handle requests, register a user and then make a call via 5080 to some address like 05011112222, When the POST request arrives, reply saying the user should be the destination of the INVITE.
+  5. aliasdb_user_resolution: add this module to opensips.cfg: https://opensips.org/docs/modules/3.6.x/alias_db.html. The test should be the same as gw2user but instead of resolving 05011112222 by a condition in opensips.cfg, adjust opensips.cfg to resolve the 05011112222 by a record in table dbaliases (an 'alias' is an extra name a user can be identified by. So we say, '05011112222' is an alias for 'user1' for example. This is how a number dialed at the PSTN is resolved to a subscriber in the SIP system).
 
-Obs: there is no need to send/receive DTMF as opensips is a SIP only server and doesn't handle media/RTP.
+  6. rest_client_user_resolution: add this module to opensips.cfg: https://opensips.org/docs/modules/3.6.x/rest_client.html and change the code to handle INVITE and make a POST request sending the R-URI username, to resolve the user to be called. In test.js, start an http server to handle requests, register a user and then make a call via 5080 to 05011112222, When the POST request arrives, reply saying the user should be the destination of the INVITE.
+
+Obs: 
+  - there is no need to send/receive DTMF as opensips is a SIP only server and doesn't handle media/RTP.
+  - add a node.js mysql module to permit for the test.js scripts to clear and add records to mariadb 'opensips' database tables.
 
 Once all exercises are complete you can run all of them by doing:
 ```
