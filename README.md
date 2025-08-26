@@ -66,9 +66,9 @@ windows:
 
 The 'opensips' window will have opensips running and outputting logs.
 
-The 'opensips-cli' window runs the tool that permits to talk to opensips and send commands to it.
+The 'opensips-cli' window runs the tool that permits to talk to opensips and send commands to it. Documentation: https://www.opensips.org/Documentation/Interface-CoreMI-3-6
 
-The 'mariadb' window has mysql client connected to mariadb server (database opensips).
+The 'mariadb' window has mysql client connected to mariadb server (database 'opensips').
 
 Obs: sngrep2 is a fork of [sngrep](https://github.com/irontec/sngrep) with support for RFC2833 DTMF and MRCP support.
 
