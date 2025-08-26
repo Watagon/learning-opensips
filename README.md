@@ -161,7 +161,7 @@ Obs: the register/opensips.cfg listen to port 5060 (public, used for SIP termina
 
   1. register: just register and unregister procedure (sample)
 
-  2. user2user: register sip terminals (users) and make a call from one user to another (via port 5060). In the INVITE from the user1, include a header 'X-Test: ABC' and make opensips suppress this header when relaying this INVITE to user2. Answer the call at user2 (confirm the ehader 'X-Test' is absent) and end the call from any of the sides. To finish the test, unregister the terminals.
+  2. user2user: register sip terminals (users) and make a call from one user to another (via port 5060). In the INVITE from the user1, include a header 'X-Test: ABC' and make opensips suppress this header when relaying this INVITE to user2. When the call arrives at user2, confirm the header 'X-Test' is absent, answer it and end the call from any of the sides. To finish the test, unregister the terminals.
 
   3. register_with_auth: the base opensips.cfg accepts REGISTER requests from any SIP entity. Add support for authentication for requests arriving at port 5060 (need to add a record into table subscriber with authentication details). After registration success, do the unregistration.
 
