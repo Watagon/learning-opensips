@@ -19,6 +19,8 @@ fi
 
 test_folder=$1
 
+/usr/local/src/git/opensips/opensips -c -f $test_folder/opensips.cfg
+
 sudo cp -f $test_folder/opensips.cfg /usr/local/etc/opensips/
 
 # kill opensips (it will restart using the new opensips.cfg)

@@ -122,7 +122,7 @@ To run an exercise we will do:
 ./run_test.sh EXERCISE_NAME
 ```
 
-The script run_test.sh will copy the exercise opensips.cfg to /usr/local/etc/opensips/opensips.cfg and will force opensips to restart to get the new configuration.
+The script run_test.sh will check if the exercise opensips.cfg is syntactically valid, copy it to /usr/local/etc/opensips/opensips.cfg and will force opensips to restart to get the new configuration.
 
 Then run_test.sh will execute test.js.
 
