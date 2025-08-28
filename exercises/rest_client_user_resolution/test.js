@@ -5,6 +5,25 @@ var m = require('data-matching')
 var sip_msg = require('sip-matching')
 var sdp = require('sdp-matching')
 var assert = require('assert')
+var express = require('express')
+
+const app = express()
+app.use(express.json())
+app.post('/resolution', async (req, res) => {
+    console.log(req.body)
+    // const ru = req.body.did
+    // const re = /^sip:05011112222@(localhost|127\.0\.0\.1)/
+    const ru = req.body.username
+    const re = /^05011112222$/
+    if (ru != undefined && re.test(ru)) {
+        res.json({ ruri: 'sip:user1@localhost' })
+    } else {
+        res.status(404).send('user not found')
+    }
+})
+app.listen(10000, () => {
+    console.log('REST server started...')
+})
 
 async function prepare_data() {
     var mysql = require('mysql2/promise')
