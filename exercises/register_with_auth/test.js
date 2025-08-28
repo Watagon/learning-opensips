@@ -6,7 +6,24 @@ var sip_msg = require('sip-matching')
 var sdp = require('sdp-matching')
 var assert = require('assert')
 
+async function prepare_data() {
+    var mysql = require('mysql2/promise')
+    const con = await mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: 'brastel',
+        database: 'opensips',
+    })
+    await con.query('truncate table subscriber')
+    await con.query(`insert subscriber set
+        username = 'user1',
+        domain = 'test1.com',
+        password = 'pass1'
+    `)
+}
+
 async function test() {
+    await prepare_data()
     sip.set_log_level(9)
     sip.dtmf_aggregation_on(500)
 
