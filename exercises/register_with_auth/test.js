@@ -21,11 +21,11 @@ async function test() {
 
     console.log("t1", t1)
 
-    var server = '127.0.0.1:5060'
-    var domain = 'test1.com'
+    const server = '127.0.0.1:5060'
+    const domain = 'test1.com'
 
-    var a1 = sip.account.create(t1.id, {
-        domain, 
+    const a1 = sip.account.create(t1.id, {
+        domain,
         server,
         username: 'user1',
         password: 'pass1',
@@ -34,6 +34,9 @@ async function test() {
 
     sip.account.register(a1, {auto_refresh: true})
 
+    z.add_event_filter({ event: 'non_dialog_request' })
+
+    // TODO: add auth fail case (wrong pass)
     await z.wait([
         {
             event: 'registration_status',
@@ -42,7 +45,7 @@ async function test() {
             reason: 'OK',
             expires: 60
         },
-    ], 1000)
+    ], 3000)
 
     sip.account.unregister(a1)
 
