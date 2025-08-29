@@ -76,8 +76,6 @@ async function test() {
         id: z.store.call_id,
     }
 
-    z.add_event_filter({ event: 'media_update' })
-
     sip.call.respond(ic.id, { code: 200, reason: 'OK' })
 
     await z.wait([
@@ -89,6 +87,16 @@ async function test() {
                 $rs: '200',
                 $rr: 'OK',
             }),
+        },
+        {
+            event: 'media_update',
+            call_id: oc.id,
+            status: 'ok',
+        },
+        {
+            event: 'media_update',
+            call_id: ic.id,
+            status: 'ok',
         },
     ], 1000)
 
