@@ -18,7 +18,7 @@ async function prepare_data() {
     await con.query(`insert subscriber set
         username = 'user1',
         domain = 'test1.com',
-        password = 'pass1'
+        ha1 = md5(concat_ws(':', username, domain, 'pass1'))
     `)
 }
 
