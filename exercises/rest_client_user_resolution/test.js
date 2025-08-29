@@ -21,25 +21,7 @@ app.listen(10000, () => {
     console.log('REST server started...')
 })
 
-async function prepare_data() {
-    var mysql = require('mysql2/promise')
-    const con = await mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: 'brastel',
-        database: 'opensips',
-    })
-    await con.query('truncate table dbaliases')
-    await con.query(`insert dbaliases set
-        alias_username = '05011112222',
-        alias_domain = '127.0.0.1',
-        username = 'user1',
-        domain = 'test1.com'
-    `)
-}
-
 async function test() {
-    await prepare_data()
     sip.set_log_level(9)
     sip.dtmf_aggregation_on(500)
 
