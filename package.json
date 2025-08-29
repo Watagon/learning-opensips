@@ -11,6 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "config": "^4.1.0",
+    "express": "^5.1.0",
+    "mysql2": "^3.14.3",
     "sip-lab": "^1.30.0"
   }
 }
