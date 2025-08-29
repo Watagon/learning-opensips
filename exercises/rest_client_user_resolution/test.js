@@ -11,15 +11,11 @@ const app = express()
 app.use(express.json())
 app.post('/resolution', async (req, res) => {
     console.log(req.body)
-    // const ru = req.body.did
-    // const re = /^sip:05011112222@(localhost|127\.0\.0\.1)/
-    const ru = req.body.username
-    const re = /^05011112222$/
-    if (ru != undefined && re.test(ru)) {
-        res.json({ ruri: 'sip:user1@localhost' })
-    } else {
-        res.status(404).send('user not found')
-    }
+    z.push_event({
+        event: 'http_req',
+        req,
+        res,
+    })
 })
 app.listen(10000, () => {
     console.log('REST server started...')
@@ -89,6 +85,29 @@ async function test() {
         from_uri: 'sip:outside@test2.com',
         to_uri: 'sip:05011112222@127.0.0.1:5080',
     })
+    await z.wait([
+        {
+            event: 'http_req',
+            req: {
+                url: '/resolution',
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: {
+                    did: 'sip:05011112222@127.0.0.1:5080',
+                    username: '05011112222',
+                },
+            },
+            res: m.collect('res'),
+        },
+    ], 1000)
+    console.log("\x1b[33m")
+    console.log("Response to the http req here!!!")
+    console.log("\x1b[0m")
+    console.log(typeof z.store.res.json)
+    console.log(z.store.res.json({ ruri: 'sip:user1@localhost' }))
+    console.log(z.store.res)
 
     await z.wait([
         {
